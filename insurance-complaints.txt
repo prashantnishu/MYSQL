@@ -1,0 +1,172 @@
+CREATE DATABASE DEMO_DATABASE;
+USE DEMO_DATABASE;
+
+CREATE OR REPLACE TABLE PA_COMPLAINS
+(
+  ID INT,
+  ComplainDate VARCHAR(15),	
+  CompletionDate VARCHAR(15),
+  CustomerID INT,	
+  BrokerID INT,	
+  ProductID	INT,
+  ComplainPriorityID INT,	
+  ComplainTypeID INT,	
+  ComplainSourceID INT,	
+  ComplainCategoryID INT,	
+  ComplainStatusID INT,	
+  AdministratorID STRING,	
+  ClientSatisfaction VARCHAR(10),	
+  ExpectedReimbursement INT
+  );
+  
+SELECT * FROM PA_COMPLAINS; --13,846 ROWS
+-----------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_CUSTOMER
+(
+ CustomerID	INT,
+  LastName VARCHAR(50),	
+  FirstName	VARCHAR(50),
+  BirthDate	VARCHAR(50),
+  Gender VARCHAR(10),
+  ParticipantType VARCHAR(10),	
+  RegionID INT,
+  MaritalStatus VARCHAR(10)
+ 
+);
+
+SELECT * FROM PA_CUSTOMER; --12,305 ROWS
+---------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_BROKER
+(
+  BrokerID INT,
+  BrokerCode VARCHAR(50),
+  BrokerFullName VARCHAR(50),
+  DistributionNetwork VARCHAR(50),
+  DistributionChannel VARCHAR(50),
+  CommissionScheme VARCHAR(50)
+);
+
+SELECT * FROM PA_BROKER; --707 ROWS
+---------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_CATEGORIES
+(
+  ID INT,
+  Description_Categories VARCHAR(200),
+  Active INT
+);
+
+SELECT * FROM PA_CATEGORIES; --56 ROWS
+------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_PRIORITIES
+(
+  ID INT,	
+  Description_Priorities varchar(10)
+);
+
+SELECT * FROM PA_PRIORITIES;
+-----------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_PRODUCT
+(
+  ProductID INT,
+  ProductCategory VARCHAR(50),
+  ProductSubCategory VARCHAR(50),
+  Product VARCHAR(20)
+);
+
+SELECT * FROM PA_PRODUCT; --77 ROWS
+----------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_REGIONS
+(
+  id INT,
+  name VARCHAR(50),
+  county VARCHAR(200),
+  state_code VARCHAR(10),
+  state VARCHAR(50),
+  type VARCHAR(50),
+  latitude NUMBER(10,5),
+  longitude NUMBER(10,5),
+  area_code INT,
+  population INT,
+  households INT,
+  median_income INT,
+  land_area INT,
+  water_area INT,
+  time_zone VARCHAR(50)
+);
+
+SELECT * FROM PA_REGIONS; --994 ROWS
+------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_SOURCES
+(
+  ID INT,
+  Description_Source VARCHAR(50)
+);
+
+SELECT * FROM PA_SOURCES; --9 ROWS
+-------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_STATE_REGIONS
+(
+  State_Code VARCHAR(10),
+  State VARCHAR(50),
+  Region VARCHAR(20)
+);
+
+SELECT * FROM PA_STATE_REGIONS; --48 ROWS
+-------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_STATUSES
+(
+  ID INT,
+  Description_Statuses VARCHAR(20)
+);
+
+SELECT * FROM PA_STATUSES; --7 ROWS
+-------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_TYPES
+(
+  ID INT,
+  Description_Types VARCHAR(20)
+);
+
+SELECT * FROM PA_TYPES; --10 ROWS
+----------------------------------------------------------------------------------
+
+CREATE OR REPLACE TABLE PA_STATUS_HISTORY
+(
+  ID INT,
+  ComplaintID INT,
+  ComplaintStatusID INT,
+  StatusDate VARCHAR(15)
+);
+
+SELECT * FROM PA_STATUS_HISTORY; -- 11,558 ROWS
+---------------------------------------------------------------------------------------
+CREATE OR REPLACE TABLE PA_CUST_MASTER AS
+SELECT COM.ID,COM.ComplainDate,COM.CompletionDate,CUS.LastName,CUS.FirstName,
+CUS.Gender,BR.BrokerFullName,BR.CommissionScheme,
+CAT.Description_Categories,STR.Region,STA.Description_Statuses,REG.state,PRO.Product,
+PRI.Description_Priorities,SOU.Description_Source,TYP.Description_Types
+--SELECT COM.*, CUS.*, BR.*,CAT.*,PRI.*,PRO.*,REG.*,SOU.*,STR.*,STA.*,TYP.*,STH.*
+FROM PA_COMPLAINS COM
+LEFT OUTER JOIN PA_CUSTOMER CUS ON COM.CustomerID = CUS.CustomerID
+LEFT OUTER JOIN PA_BROKER BR ON COM.BrokerID = BR.BrokerID
+LEFT OUTER JOIN PA_CATEGORIES CAT ON COM.ComplainCategoryID = CAT.ID
+LEFT OUTER JOIN PA_PRIORITIES PRI ON COM.ComplainPriorityID = PRI.ID
+LEFT OUTER JOIN PA_PRODUCT PRO ON COM.ProductID = PRO.ProductID
+LEFT OUTER JOIN PA_REGIONS REG ON CUS.RegionID = REG.id
+LEFT OUTER JOIN PA_SOURCES SOU ON COM.ComplainSourceID = SOU.ID
+LEFT OUTER JOIN PA_STATE_REGIONS STR ON REG.state_code = STR.State_Code
+LEFT OUTER JOIN PA_STATUSES STA ON COM.ComplainStatusID = STA.ID
+LEFT OUTER JOIN PA_TYPES TYP ON COM.ComplainTypeID = TYP.ID 
+LEFT OUTER JOIN PA_STATUS_HISTORY STH ON COM.ID = STH.ID;
+
+SELECT * FROM PA_CUST_MASTER;
